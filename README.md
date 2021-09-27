@@ -5,6 +5,9 @@ Due: October 4th, by 11:59 AM.
 
 For this assignment we will focus on client-side development using popular audio/graphics/visualization technologies. The goal of this assignment is to refine our JavaScript knowledge while exploring the multimedia capabilities of the browser.
 
+[WebAudio / Canvas / Three Tutorial](https://github.com/cs4241-21a/cs4241-21a.github.io/blob/main/webaudio_canvas_three.md)  
+[SVG + D3 tutorial](https://github.com/cs4241-21a/cs4241-21a.github.io/blob/main/using_svg_and_d3.md)  
+
 Baseline Requirements
 ---
 
