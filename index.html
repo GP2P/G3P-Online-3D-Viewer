@@ -193,10 +193,6 @@
 						<button onclick="download('Desktop Table', [6, 0, 0]); lightPosition = [7, 6, -3, 1]">
 							Desktop Table - 62MB
 						</button>
-						<!-- From https://free3d.com/3d-model/mountains-scene-41819.html -->
-						<button onclick="download('mountains', [0, -5, 0]); lightPosition = [7, 6, -3, 1]">
-							Mountains Scene - 190MB
-						</button>
 					</p>
 
 					<!--WebGL Application-->
@@ -445,6 +441,10 @@
 							section of the .obj file, for example, if car.obj's mtllib changes to car2.mtl, the program
 							will still proceed to try load car.mtl given by the user. If an .mtl does not exist or a
 							material is not found in the .mtl library, the default grey material will be used.
+						</li>
+						<li>Note: Larger files are removed from this project's online samples. Glitch and GitHub are
+							both not able to handle big files easily, and the load time of the 80MB Bugatti already
+							exceeded 16 seconds.
 						</li>
 					</ul>
 
