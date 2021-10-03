@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+	<!--Website Icons and CSS-->
+	<link rel="apple-touch-icon" sizes="180x180" href="resources/images/G3P-logo.png"/>
+	<link rel="apple-touch-icon" sizes="167x167" href="resources/images/medium.png"/>
+	<link rel="icon" type="image/png" href="resources/images/favicon_large.png" sizes="64x64"/>
+	<link rel="icon" type="image/png" href="resources/images/favicon_medium.png" sizes="32x32"/>
+	<link rel="apple-touch-icon" sizes="152x152" href="resources/images/small.png"/>
+	<link rel="icon" type="image/png" href="resources/images/favicon_small.png" sizes="16x16"/>
+	<link rel="stylesheet" type="text/css" media="all" href="resources/consolidated.css"/>
+
+	<!--Title-->
+	<title>CS4241 Assignment 4</title>
+
+	<!--Vertex Shader - Gouraud-->
+	<script id="vShaderGouraud" type="x-shader/x-vertex">
+		attribute vec4 vPosition, vNormal, materialDiffuse, materialSpecular;
+		uniform vec4 lightPosition, lightAmbient, lightDiffuse, lightSpecular;
+		uniform float shininess;
+		uniform mat4 modelViewMatrix, projectionMatrix;
+		varying vec4 fColor;
+		uniform bool lightOn;
+
+		void main() {
+			if (lightOn) {
+				vec3 pos = (modelViewMatrix * vPosition).xyz;
+				vec3 L = normalize((modelViewMatrix * lightPosition).xyz - pos);
+				vec3 N = normalize(modelViewMatrix * vNormal).xyz;
+				vec3 V = normalize(-pos);
+				vec3 R = (2.0 * dot(L, N) * N) - L;
+				vec4 diffuse = (lightDiffuse * materialDiffuse) * dot(L, N);
+				vec4 specular = (lightSpecular * materialSpecular) * pow(max(dot(V, R), 0.0), shininess);
+
+				fColor = diffuse + specular + lightAmbient * materialDiffuse;
+			} else fColor = lightAmbient * materialDiffuse;
+			fColor.a = 1.0;
+
+			gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+		}
+	</script>
+
+	<!--Vertex Shader- Phong-->
+	<script id="vShaderPhong" type="x-shader/x-vertex">
+		attribute vec4 vPosition, vNormal, materialDiffuse, materialSpecular;
+		uniform vec4 lightPosition;
+		uniform mat4 modelMatrix, modelViewMatrix, projectionMatrix;
+		varying vec3 L, N, V;
+		varying vec4 materialDiffuseF, materialSpecularF;
+		uniform bool lightOn;
+		varying vec3 R;
+
+		void main() {
+
+			if (lightOn) {
+				vec3 pos = (modelViewMatrix * vPosition).xyz;
+				L = normalize((modelViewMatrix * lightPosition).xyz - pos);
+				N = normalize(modelViewMatrix * vNormal).xyz;
+				V = normalize(-pos);
+				materialSpecularF = materialSpecular;
+			}
+
+			materialDiffuseF = materialDiffuse;
+
+			gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+		}
+	</script>
+
+	<!--Fragment Shader - Gouraud-->
+	<script id="fShaderGouraud" type="x-shader/x-fragment">
+		precision mediump float;
+		varying vec4 fColor;
+		uniform sampler2D stopTex;
+		uniform bool lightOn;
+
+		void main() {
+			gl_FragColor = fColor;
+		}
+	</script>
+
+	<!--Fragment Shader - Phong-->
+	<script id="fShaderPhong" type="x-shader/x-fragment">
+		precision mediump float;
+		uniform vec4 lightAmbient, lightDiffuse, lightSpecular;
+		uniform float shininess;
+		varying vec3 L, N, V;
+		varying vec4 materialDiffuseF, materialSpecularF;
+		uniform bool lightOn;
+		uniform bool reflection;
+		uniform bool refraction;
+		uniform sampler2D stopTex;
+		uniform samplerCube texMap;
+		varying vec3 R;
+
+		void main() {
+			vec4 fColor;
+
+			if (lightOn) {
+				vec3 R = (2.0 * dot(L, N) * N) - L;
+				vec4 diffuse = (lightDiffuse * materialDiffuseF) * dot(L, N);
+				vec4 specular = (lightSpecular * materialSpecularF) * pow(max(dot(V, R), 0.0), shininess);
+
+				fColor = diffuse + specular + lightAmbient * materialDiffuseF;
+			} else fColor = lightAmbient * materialDiffuseF;
+			fColor.a = 1.0;
+
+			if (reflection) {
+				gl_FragColor = fColor + textureCube(texMap, R);
+			} else if (refraction) {
+				fColor = textureCube(texMap, R);
+				fColor.a = 0.7;
+				gl_FragColor = fColor;
+			} else {
+				gl_FragColor = fColor;
+			}
+		}
+	</script>
+
+	<script src="application.js"></script>
+
+</head>
+
+<body>
+
+<!--Logo-->
+<nav class="navbar navbar-expand-lg">
+	<div class="container">
+		<a class="navbar-brand" href="https://github.com/GP2P/a4-creative-coding/">
+			<img src="resources/images/G3P-logo.png" width="64" height="64" alt="G3P Logo"/>
+			<span class="navbar-title">GP2P</span>
+		</a>
+	</div>
+</nav>
+
+<!--Hero-->
+<header class="hero" id="hero">
+	<div class="hero-background"></div>
+	<div class="hero-overlay"></div>
+	<h1 class="hero-title">
+		GP2P
+		<em>Webware Assignment 4</em>
+	</h1>
+</header>
+
+<!--Contents-->
+<div class="content">
+	<section class="main" style="position: relative">
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-12 main">
+					<h1 id="application">Application</h1>
+
+					<!--Load Bar-->
+					<h6>Load Local Models</h6>
+					<p style="text-align: center">
+						<label for="objUpload">.obj File Upload</label>
+						<input type="file" id="objUpload">
+					</p>
+					<p style="text-align: center">
+						<label for="mtlUpload">.mtl File Upload</label>
+						<input type="file" id="mtlUpload">
+					</p>
+
+					<h6>Load Sample Models</h6>
+					<p style="text-align: center">
+						<!-- From https://free3d.com/3d-model/wolf-rigged-and-game-ready-42808.html -->
+						<button onclick="download('Wolf_obj')">
+							Wolf - 177KB
+						</button>
+						<!-- From https://free3d.com/3d-model/watch-tower-made-of-wood-94934.html -->
+						<button onclick="download('watchtower', [0, -1, 0])">
+							Watchtower - 236KB
+						</button>
+						<!-- From https://free3d.com/3d-model/bugatti-chiron-2017-model-31847.html -->
+						<button onclick="download('bugatti')">
+							Bugatti Chiron 2017 Sports Car - 80MB
+						</button>
+					</p>
+					<p style="text-align: center">
+						<!-- From https://free3d.com/3d-model/sci_fi_gun-732358.html -->
+						<button onclick="download('scifi_gun', [0, -1, 0])">
+							Sci Fi Sniper Gun - 6MB
+						</button>
+						<!-- From https://free3d.com/3d-model/cartoon-character-75227.html -->
+						<button onclick="download('Toot_Braustein')">
+							Cartoon Character - 1.4MB
+						</button>
+						<!-- From https://free3d.com/3d-model/--147007.html -->
+						<button onclick="download('Desktop Table', [6, 0, 0]); lightPosition = [7, 6, -3, 1]">
+							Desktop Table - 62MB
+						</button>
+						<!-- From https://free3d.com/3d-model/mountains-scene-41819.html -->
+						<button onclick="download('mountains', [0, -5, 0]); lightPosition = [7, 6, -3, 1]">
+							Mountains Scene - 190MB
+						</button>
+					</p>
+
+					<!--WebGL Application-->
+					<canvas id="webgl" width="1000" height="1000" class="rounded"
+					        style="max-width: 100%; max-height: 100%; margin: auto; display: block; border: 1px solid black">
+						Please use a browser that supports the "canvas" tag.
+					</canvas>
+
+					<br>
+
+					<!--Control Bar-->
+					<h6>Controls</h6>
+
+					<p style="text-align: center">
+						Light Position
+						<label>
+							X:
+							<input type="range" id="lightX" min="-10" max="10"
+							       step="0.01" value="3"
+							       oninput="this.nextElementSibling.value = this.value; lightPosition[0] = +this.value; shaderChange()">
+							<output>3</output>
+						</label>
+						<input type="button" id="lightXReset" value="R"
+						       onclick="lightX.value=3; lightPosition[0] = 3; shaderChange()">
+						<label>
+							Y:
+							<input type="range" id="lightY" min="-10" max="10"
+							       step="0.01" value="5"
+							       oninput="this.nextElementSibling.value = this.value; lightPosition[1] = +this.value; shaderChange()">
+							<output>5</output>
+						</label>
+						<input type="button" id="lightYReset" value="R"
+						       onclick="lightY.value=5; lightPosition[1] = 5; shaderChange()">
+						<label>
+							Z:
+							<input type="range" id="lightZ" min="-10" max="10"
+							       step="0.01" value="0"
+							       oninput="this.nextElementSibling.value = this.value; lightPosition[2] = +this.value;shaderChange()">
+							<output>0</output>
+						</label>
+						<input type="button" id="lightZReset" value="R"
+						       onclick="lightZ.value=0; lightPosition[2] = 0; shaderChange()">
+					</p>
+					<p style="text-align: center">
+						<label>
+							Ambient Light Color:
+							<input type="color" id="lightAmbient">
+						</label>
+						<label>
+							Diffuse Light Color:
+							<input type="color" id="lightDiffuse">
+						</label>
+						<label>
+							Specular Light Color:
+							<input type="color" id="lightSpecular">
+						</label>
+					</p>
+					<p style="text-align: center">
+						<label>
+							<input type="checkbox" id="shadowsCheckbox"
+							       onchange="if (!animating) render()">
+							Shadows
+						</label>
+						<label>
+							<input type="checkbox" id="pointLightCheckbox" checked
+							       onchange="if (!animating) render()">
+							Point Light
+						</label>
+						<label>
+							<input type="checkbox" id="phongCheckbox"
+							       onchange="shaderChange()">
+							Phong Lighting Mode (Gouraud if unchecked)
+						</label>
+						<label>
+							<input type="checkbox" id="invertCheckbox"
+							       onchange="readIn()">
+							X-ray (invert material colors)
+						</label>
+					</p>
+					<p style="text-align: center">
+						<label>
+							<input type="checkbox" id="camAnimationCheckbox"
+							       onchange="if (!animating) render()">
+							Animation Mode
+						</label>
+						<label>
+							Speed:
+							<input type="range" id="animationSpeed" min="1" max="10"
+							       step="1" value="1" oninput="this.nextElementSibling.value = this.value">
+							<output>1</output>
+						</label>
+						<input type="button" id="animationSpeedMinus" value="-"
+						       onclick="animationSpeed.value--">
+						<input type="button" id="animationSpeedPlus+" value="+"
+						       onclick="animationSpeed.value++">
+						<input type="button" id="animationSpeedReset" value="Reset"
+						       onclick="animationSpeed.value=1">
+					</p>
+					<p style="text-align: center">
+						<label id="fov">
+							Field of View:
+							<input type="range" id="fieldOfViewY" min="1" max="150"
+							       step="1" value="50"
+							       oninput="this.nextElementSibling.value = this.value; if (!animating) render()">
+							<output>50</output>
+						</label>
+						<input type="button" id="fieldOfViewYReset" value="R"
+						       onclick="fieldOfViewY.value=50; if (!animating) render()">
+						<label>
+							Camera Distance:
+							<input type="range" id="cameraDistance" min="-30" max="20"
+							       value="7"
+							       oninput="this.nextElementSibling.value = this.value; if (!animating) render()">
+							<output>7</output>
+						</label>
+						<input type="button" id="cameraDistanceReset" value="R"
+						       onclick="cameraDistance.value=7; if (!animating) render()">
+						<label>
+							Perspective Far:
+							<input type="range" id="perspectiveFar" min="0" max="100"
+							       value="30"
+							       oninput="this.nextElementSibling.value = this.value; if (!animating) render()">
+							<output>30</output>
+						</label>
+						<input type="button" id="farReset" value="R"
+						       onclick="perspectiveFar.value=30; if (!animating) render()">
+					</p>
+
+					<!--Debug Information Table-->
+					<h6>Debug Information</h6>
+
+					<table style="width: 100%; text-align: center">
+						<tr>
+							<th>Data</th>
+							<th>Value</th>
+						</tr>
+						<tr>
+							<td>Camera Animation Degree</td>
+							<td id="camAnimationDegree">0</td>
+						</tr>
+						<tr>
+							<td>Camera Animation Variance</td>
+							<td id="camAnimationVariance">0</td>
+						</tr>
+					</table>
+
+					<p></p>
+
+					<!--Keyboard Shortcuts Table-->
+					<h6>Keyboard Shortcuts</h6>
+
+					<table style="width: 100%; text-align: center">
+						<tr>
+							<th>Operation</th>
+							<th>Primary</th>
+							<th>Secondary</th>
+						</tr>
+						<tr>
+							<td>Toggle Shadows</td>
+							<td>S</td>
+							<td>s</td>
+						</tr>
+						<tr>
+							<td>Toggle Point Light</td>
+							<td>D</td>
+							<td>d</td>
+						</tr>
+						<tr>
+							<td>Toggle Between Gouraud Shading and Phong Shading</td>
+							<td>Q</td>
+							<td>q</td>
+						</tr>
+						<tr>
+							<td>Toggle X-Ray</td>
+							<td>X</td>
+							<td>x</td>
+						</tr>
+						<tr>
+							<td>Toggle Animation</td>
+							<td>A</td>
+							<td>a</td>
+						</tr>
+						<tr>
+							<td>Change Animation Speed from 1x to 10x</td>
+							<td>numbers 1-0</td>
+						</tr>
+						<tr>
+							<td>Super Reset</td>
+							<td>R</td>
+							<td>r</td>
+						</tr>
+					</table>
+
+					<!-- Readme -->
+					<h2>README.md</h2>
+
+					<ul>
+						<li><b>.obj Viewer:</b> This site allows viewing of any .obj 3D models that use labels v, vn,
+							usemtl, and f along with its corresponding .mtl material that use labels Kd and Ks. All
+							other labels are ignored, which means this viewer does not handle ambient color, weighted
+							specular color, transparency, optical density, textures, etc.
+						</li>
+						<li><b>Load Sample Models:</b> The server serves some 3D models, big and small, for the user to
+							choose from. Each button corresponds to a 3D model (a pair of .obj and .mtl files) stored on
+							the server, clicking the button downloads the files with an XMLHttpRequest and the webpage
+							will render it once it finishes downloading from the server. Each sample model comes with a
+							set of customized viewing settings to better showcase the object. The sample models are
+							mostly from <a href="https://free3d.com">free3d.com</a> and links for each model is in the
+							html file.
+						</li>
+						<li><b>Load Local Models:</b> The user can load a local 3D model (a pair of .obj and .mtl files)
+							and the webpage will render it as much as supported tags go.
+						</li>
+						<li><b>Responsive:</b> This site is again, responsive to window size / device width, especially
+							the viewing canvas window.
+						</li>
+						<li><b>CSS Template:</b> This site used a template from RapidWeaver</li>
+						<li><b>Code Reuse:</b> This site used code from one of my previous open source projects, the
+							structural JavaScript working flow remains similar while the contents are changed.
+						</li>
+						<li><b>Animation:</b> Animate the 3rd person camera to rotate around the object and move up and
+							down for variance
+						</li>
+						<li><b>Change Animation Speed:</b> Change the animation's speed from 0.1°/s to 1°/s in the
+							control section
+						</li>
+						<li><b>Shadows:</b> Objects casts shadows to the ground</li>
+						<li><b>Change Light Position:</b> Change where the light is and see how the lighting and shadows
+							change
+						</li>
+						<li><b>Lighting Mode Change:</b> Toggle between Gouraud shading and Phong shading</li>
+						<li><b>X-ray:</b> Invert rendered material colors and the background</li>
+						<li><b>Light Colors:</b> Change the Ambient Light Color, Diffuse Light Color and Specular Light
+							Color in the control section
+						</li>
+						<li><b>FOV:</b> Change the y-axis field of view from 1 to 150 in the control section</li>
+						<li><b>Distance:</b> Change the camera's distance from -25 to 25 in the control section</li>
+						<li><b>Perspective Far:</b> Change the perspective view's far limitation from 0 to 100 in the
+							control section
+						</li>
+						<li><b>"Super Reset":</b> Pressing the R key resets the Lighting Mode, Ambient Light Color,
+							Diffuse Light Color, Specular Light Color, Animation, Animation Speed, Animation Degree,
+							Animation Variance, Point Light, X-ray, field of view, camera distance and perspective far.
+						</li>
+						<li>Note: the loading of .mtl files does not get affected by what was stored in the mtllib
+							section of the .obj file, for example, if car.obj's mtllib changes to car2.mtl, the program
+							will still proceed to try load car.mtl given by the user. If an .mtl does not exist or a
+							material is not found in the .mtl library, the default grey material will be used.
+						</li>
+					</ul>
+
+					<blockquote>
+						Thanks!
+					</blockquote>
+				</div>
+			</div>
+		</div>
+	</section>
+</div>
+
+<!--Footer-->
+<div class="footer">
+	<div class="container">
+		<div class="row">
+			<div class="col">
+				GP2P
+			</div>
+		</div>
+		<div class="row">
+			<div class="col">
+				<a href="https://github.com/GP2P/a4-creative-coding/">GitHub Page</a>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript" src="resources/js/main.js"></script>
+</body>
+
+</html>

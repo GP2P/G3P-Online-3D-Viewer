@@ -1,0 +1,85 @@
+newmtl body
+Kd 0.784314 0.784314 0.784314
+Ke 0 0 0
+Ka 1 1 1
+Ks 0 0 0
+Ns 400
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+map_Kd D:Lucrari/Probe/toot_Braunstein/Braunstein_obj/Toot_Braustein.jpg
+
+newmtl dress
+Kd 0.784314 0.784314 0.784314
+Ke 0 0 0
+Ka 1 1 1
+Ks 0 0 0
+Ns 400
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+map_Kd D:Lucrari/Probe/toot_Braunstein/Braunstein_obj/Toot_Braustein.jpg
+
+newmtl eye
+Kd 0.784314 0.784314 0.784314
+Ke 0 0 0
+Ka 1 1 1
+Ks 0 0 0
+Ns 400
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+map_Kd D:Lucrari/Probe/toot_Braunstein/Braunstein_obj/Toot_Braustein.jpg
+
+newmtl hair
+Kd 0.784314 0.784314 0.784314
+Ke 0 0 0
+Ka 1 1 1
+Ks 0 0 0
+Ns 400
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+map_Kd D:Lucrari/Probe/toot_Braunstein/Braunstein_obj/Toot_Braustein.jpg
+
+newmtl in_mouth
+Kd 0.784314 0.784314 0.784314
+Ke 0 0 0
+Ka 1 1 1
+Ks 0 0 0
+Ns 400
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+map_Kd D:Lucrari/Probe/toot_Braunstein/Braunstein_obj/Toot_Braustein.jpg
+
+newmtl lashes
+Kd 0.784314 0.784314 0.784314
+Ke 0 0 0
+Ka 1 1 1
+Ks 0 0 0
+Ns 400
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+map_Kd D:Lucrari/Probe/toot_Braunstein/Braunstein_obj/Toot_Braustein.jpg
+map_Tr D:Lucrari/Probe/toot_Braunstein/Braunstein_obj/Toot_Braustein.jpg
+
+newmtl under_d
+Kd 0.784314 0.784314 0.784314
+Ke 0 0 0
+Ka 1 1 1
+Ks 0 0 0
+Ns 400
+Tr 0
+d 1
+Ni 1
+Tf 1 1 1
+map_Kd D:Lucrari/Probe/toot_Braunstein/Braunstein_obj/Toot_Braustein.jpg
+

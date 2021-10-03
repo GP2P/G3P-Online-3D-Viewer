@@ -1,0 +1,24 @@
+{
+  "name": "gp2p_obj_viewer",
+  "version": "1.0.0",
+  "description": "A website that allows user to load and view a local .obj (and it's corresponding .mtl file)",
+  "author": "GP2P",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "main": "server.js",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GP2P/a4-creative-coding.git"
+  },
+  "bugs": {
+    "url": "https://github.com/GP2P/a4-creative-coding/issues"
+  },
+  "homepage": "https://github.com/GP2P/a4-creative-coding#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
