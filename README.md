@@ -7,7 +7,8 @@ Yihong Xu
 https://a4-gp2p.glitch.me
 
 This project is an almost static website that allows user to load a local .obj model along with its .mtl materials, and
-a Node.js server using the express framework, not connected to a database. It provides sample models for the user.
+a Node.js server using the express framework, not connected to a database. It provides sample models for the user. It
+is a site that uses canvas and WebGL to render.
 
 ### Features:
 
