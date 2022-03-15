@@ -7,6 +7,8 @@ This project is an almost static website that allows user to load a local .obj m
 a Node.js server using the express framework, not connected to a database. It provides sample models for the user. It
 is a site that uses canvas and WebGL to render.
 
+`Does not work on Macs with Apple Silicon`
+
 ### Features:
 
 - **.obj Viewer:** This site allows viewing of any .obj 3D models that use labels `v`, `vn`, `usemtl`, and `f`
