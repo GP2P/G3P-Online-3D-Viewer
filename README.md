@@ -1,7 +1,7 @@
 G3P Online .obj Viewer
 ===
 
-https://gp2p.github.io/G3P-Online-.obj-Viewer/
+https://gp2p.github.io/G3P-Online-3D-Viewer/
 
 This project is an almost static website that allows user to load a local .obj model along with its .mtl materials, and
 a Node.js server using the express framework, not connected to a database. It provides sample models for the user. It
